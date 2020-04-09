@@ -46,27 +46,31 @@
   };
 </script>
 
-  <meta property="og:type" content="website">
-<meta property="og:title" content="yshome">
-<meta property="og:url" content="http://yoursite.com/index.html">
+  <meta name="description" content="valgrind介绍Valgrind是一套Linux下，开放源代码（GPL V2）的仿真调试工具的集合。Valgrind由内核（core）以及基于内核的其他调试工具组成。内核类似于一个框架（framework），它模拟了一个CPU环境，并提供服务给其他工具；而其他工具则类似于插件 (plug-in)，利用内核提供的服务完成各种特定的内存调试任务。 工具Valgrind一般包含下列工具：  1. M">
+<meta property="og:type" content="article">
+<meta property="og:title" content="valgrind使用介绍">
+<meta property="og:url" content="http://yoursite.com/2018/02/06/valgrind%E4%BD%BF%E7%94%A8%E4%BB%8B%E7%BB%8D/index.html">
 <meta property="og:site_name" content="yshome">
+<meta property="og:description" content="valgrind介绍Valgrind是一套Linux下，开放源代码（GPL V2）的仿真调试工具的集合。Valgrind由内核（core）以及基于内核的其他调试工具组成。内核类似于一个框架（framework），它模拟了一个CPU环境，并提供服务给其他工具；而其他工具则类似于插件 (plug-in)，利用内核提供的服务完成各种特定的内存调试任务。 工具Valgrind一般包含下列工具：  1. M">
 <meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2018-02-06T14:18:12.000Z">
+<meta property="article:modified_time" content="2020-04-08T15:23:50.191Z">
 <meta property="article:author" content="ysshen">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://yoursite.com/">
+<link rel="canonical" href="http://yoursite.com/2018/02/06/valgrind%E4%BD%BF%E7%94%A8%E4%BB%8B%E7%BB%8D/">
 
 
 <script id="page-configurations">
   // https://hexo.io/docs/variables.html
   CONFIG.page = {
     sidebar: "",
-    isHome: true,
-    isPost: false
+    isHome: false,
+    isPost: true
   };
 </script>
 
-  <title>yshome</title>
+  <title>valgrind使用介绍 | yshome</title>
   
 
 
@@ -171,248 +175,10 @@
             
 
   <div class="posts-expand">
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/08/openwrt%E5%BC%80%E5%90%AFusb%E8%87%AA%E5%8A%A8%E6%8C%82%E8%BD%BD/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="ysshen">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="yshome">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/04/08/openwrt%E5%BC%80%E5%90%AFusb%E8%87%AA%E5%8A%A8%E6%8C%82%E8%BD%BD/" class="post-title-link" itemprop="url">openwrt开启usb自动挂载</a>
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-04-08 16:56:20" itemprop="dateCreated datePublished" datetime="2020-04-08T16:56:20+08:00">2020-04-08</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-04-09 12:58:05" itemprop="dateModified" datetime="2020-04-09T12:58:05+08:00">2020-04-09</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
       
-          <h2 id="编译openwrt支持USB自动mount功能"><a href="#编译openwrt支持USB自动mount功能" class="headerlink" title="编译openwrt支持USB自动mount功能"></a>编译openwrt支持USB自动mount功能</h2><h3 id="make-menuconfig-设置"><a href="#make-menuconfig-设置" class="headerlink" title="make menuconfig 设置"></a>make menuconfig 设置</h3><ul>
-<li>1）添加USB相关支持:<ul>
-<li>Kernel modules —》 USB Support —》 《*》 kmod-usb-core. ##默认已经选了</li>
-<li>Kernel modules —》 USB Support —》 《*》 kmod-usb-ohci. ##默认已选 old usb1.0</li>
-<li>Kernel modules —》 USB Support —》 《*》 kmod-usb-uhci. ## usb1.1</li>
-<li>Kernel modules —》 USB Support —》 《*》 kmod-usb-storage.</li>
-<li>Kernel modules —》 USB Support —》 《*》 kmod-usb-storage-extras.</li>
-<li>Kernel modules —》 USB Support —》 《*》 kmod-usb2. ##默认已经选了 usb2.0</li>
-</ul>
-</li>
-<li>2）添加SCSI支持<ul>
-<li>Kernel modules —》 Block Devices —》 《*》kmod-scsi-core ##默认已经选了</li>
-</ul>
-</li>
-<li>3）添加USB挂载<ul>
-<li>Base system —》 《*》block-mount</li>
-</ul>
-</li>
-<li>4）添加自动挂载工具<ul>
-<li>UTIliTIes —》 Filesystem —》 《*》 badblocks</li>
-</ul>
-</li>
-<li>5）添加文件系统支持<ul>
-<li>Kernel modules —》 Filesystems —》 《*》 kmod-fs-ext4 （移动硬盘EXT4格式选择）</li>
-<li>Kernel modules —》 Filesystems —》 《*》 kmod-fs-vfat（FAT16 / FAT32 格式 选择）</li>
-<li>Kernel modules —》 Filesystems —》 《*》 kmod-fs-ntfs （NTFS 格式 选择）</li>
-</ul>
-</li>
-<li>6）添加UTF8编码，CP437编码，ISO8859-1编码, nls-cp936<ul>
-<li>Kernel modules —》 NaTIve Language Support —》 《*》 kmod-nls-cp437</li>
-<li>Kernel modules —》 NaTIve Language Support —》 《*》 kmod-nls-iso8859-1</li>
-<li>Kernel modules —》 Native Language Support —》 《*》 kmod-nls-utf8</li>
-<li>Kernel modules —》 Native Language Support —》 《*》 kmod-nls-cp936. ##Simplified Chinese charset （CP936， GB2312）</li>
-<li>Utilities —》 disc —》 《*》 fdisk. ##manipulate disk partition table</li>
-<li>Utilities —》 《*》 usbutils. ##USB devices listing utilities</li>
-</ul>
-</li>
-</ul>
-<h3 id="测试"><a href="#测试" class="headerlink" title="测试　"></a>测试　</h3><ul>
-<li>cat /etc/fstab ## 查看是否自动生效了</li>
-<li>mount ## 查看是否mount上<br>
-注意 插入U盘 自动挂载时会创建 /www/mnt目录的 （如果该挂载点不存在的话）
-　　</li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
   
   
-  
-
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/06/hello-world/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="ysshen">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="yshome">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/01/06/hello-world/" class="post-title-link" itemprop="url">Hello World</a>
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2020-01-06 23:41:03 / 修改时间：23:23:32" itemprop="dateCreated datePublished" datetime="2020-01-06T23:41:03+08:00">2020-01-06</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="noopener">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="noopener">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="noopener">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/one-command-deployment.html" target="_blank" rel="noopener">Deployment</a></p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/06/%E7%AC%AC%E4%B8%80%E7%AF%87%E5%8D%9A%E5%AE%A2/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="ysshen">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="yshome">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/01/06/%E7%AC%AC%E4%B8%80%E7%AF%87%E5%8D%9A%E5%AE%A2/" class="post-title-link" itemprop="url">第一篇博客</a>
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2020-01-06 23:41:03 / 修改时间：23:23:32" itemprop="dateCreated datePublished" datetime="2020-01-06T23:41:03+08:00">2020-01-06</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>开始我的第一篇博客.</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/02/06/valgrind%E4%BD%BF%E7%94%A8%E4%BB%8B%E7%BB%8D/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -426,8 +192,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          
-            <a href="/2018/02/06/valgrind%E4%BD%BF%E7%94%A8%E4%BB%8B%E7%BB%8D/" class="post-title-link" itemprop="url">valgrind使用介绍</a>
+          valgrind使用介绍
         </h1>
 
         <div class="post-meta">
@@ -458,7 +223,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h2 id="valgrind介绍"><a href="#valgrind介绍" class="headerlink" title="valgrind介绍"></a>valgrind介绍</h2><p>Valgrind是一套Linux下，开放源代码（GPL V2）的仿真调试工具的集合。Valgrind由内核（core）以及基于内核的其他调试工具组成。内核类似于一个框架（framework），它模拟了一个CPU环境，并提供服务给其他工具；而其他工具则类似于插件 (plug-in)，利用内核提供的服务完成各种特定的内存调试任务。</p>
+        <h2 id="valgrind介绍"><a href="#valgrind介绍" class="headerlink" title="valgrind介绍"></a>valgrind介绍</h2><p>Valgrind是一套Linux下，开放源代码（GPL V2）的仿真调试工具的集合。Valgrind由内核（core）以及基于内核的其他调试工具组成。内核类似于一个框架（framework），它模拟了一个CPU环境，并提供服务给其他工具；而其他工具则类似于插件 (plug-in)，利用内核提供的服务完成各种特定的内存调试任务。</p>
 <h2 id="工具"><a href="#工具" class="headerlink" title="工具"></a>工具</h2><p>Valgrind一般包含下列工具： </p>
 <h3 id="1-Memcheck"><a href="#1-Memcheck" class="headerlink" title="1. Memcheck"></a>1. Memcheck</h3><p>最常用的工具，用来检测程序中出现的内存问题，所有对内存的读写都会被检测到，一切对malloc()/free()/new/delete的调用都会被捕获。所以，它能检测以下问题： <br></p>
 <ul>
@@ -651,24 +416,33 @@
 <p>再来看 Callgrind的生成调用图过程吧，执行：<code>valgrind --tool=callgrind ./tmp</code>，执行完成后在目录下生成”callgrind.out.XXX”的文件这是分析文件，可以直接利用：callgrind_annotate callgrind.out.XXX 打印结果，也可以使用：<code>gprof2dot.py -f callgrind callgrind.out.XXX |dot -Tpng -o report.png</code> 来生成图形化结果:</p>
 <p>它生成的结果非常详细，甚至连函数入口，及库函数调用都标识出来了。<br><br>原文链接：<a href="https://blog.csdn.net/andylauren/java/article/details/93189740" target="_blank" rel="noopener">https://blog.csdn.net/andylauren/java/article/details/93189740</a></p>
 
-      
     </div>
 
     
     
     
+
       <footer class="post-footer">
-        <div class="post-eof"></div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2020/01/06/%E7%AC%AC%E4%B8%80%E7%AF%87%E5%8D%9A%E5%AE%A2/" rel="next" title="第一篇博客">
+      第一篇博客 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
       </footer>
+    
   </article>
   
   
   
 
   </div>
-
-  
-
 
 
           </div>
@@ -719,6 +493,8 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#valgrind介绍"><span class="nav-number">1.</span> <span class="nav-text">valgrind介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#工具"><span class="nav-number">2.</span> <span class="nav-text">工具</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-Memcheck"><span class="nav-number">2.1.</span> <span class="nav-text">1. Memcheck</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-Callgrind"><span class="nav-number">2.2.</span> <span class="nav-text">2. Callgrind</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-Cachegrind"><span class="nav-number">2.3.</span> <span class="nav-text">3. Cachegrind</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-Helgrind"><span class="nav-number">2.4.</span> <span class="nav-text">4. Helgrind</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-Massif"><span class="nav-number">2.5.</span> <span class="nav-text">5. Massif</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#原理"><span class="nav-number">3.</span> <span class="nav-text">原理</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#检测原理："><span class="nav-number">3.0.1.</span> <span class="nav-text">检测原理：
+</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#安装"><span class="nav-number">4.</span> <span class="nav-text">安装</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#应用"><span class="nav-number">5.</span> <span class="nav-text">应用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-检查内存错误："><span class="nav-number">5.1.</span> <span class="nav-text">1. 检查内存错误：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-检查代码覆盖和性能瓶颈："><span class="nav-number">5.2.</span> <span class="nav-text">2. 检查代码覆盖和性能瓶颈：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#用法"><span class="nav-number">6.</span> <span class="nav-text">用法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#概要用法："><span class="nav-number">6.1.</span> <span class="nav-text">概要用法：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-number">7.</span> <span class="nav-text"></span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#-1"><span class="nav-number">8.</span> <span class="nav-text"></span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#应用实践"><span class="nav-number">9.</span> <span class="nav-text">应用实践</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-数组越界-内存未释放"><span class="nav-number">9.1.</span> <span class="nav-text">1. 数组越界&#x2F;内存未释放</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1）编译程序test-c"><span class="nav-number">9.1.1.</span> <span class="nav-text">1）编译程序test.c</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2）使用Valgrind检查程序BUG"><span class="nav-number">9.1.2.</span> <span class="nav-text">2）使用Valgrind检查程序BUG</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-运行结果如下："><span class="nav-number">9.1.3.</span> <span class="nav-text">3) 运行结果如下：</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-内存释放后读写"><span class="nav-number">9.2.</span> <span class="nav-text">2.内存释放后读写</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1）编译程序t2-c"><span class="nav-number">9.2.1.</span> <span class="nav-text">1）编译程序t2.c</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2）使用Valgrind检查程序BUG-1"><span class="nav-number">9.2.2.</span> <span class="nav-text">2）使用Valgrind检查程序BUG</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-运行结果如下：-1"><span class="nav-number">9.2.3.</span> <span class="nav-text">3) 运行结果如下：</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-无效读写"><span class="nav-number">9.3.</span> <span class="nav-text">3.无效读写</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1）编译程序t3-c"><span class="nav-number">9.3.1.</span> <span class="nav-text">1）编译程序t3.c</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2）使用Valgrind检查程序BUG-2"><span class="nav-number">9.3.2.</span> <span class="nav-text">2）使用Valgrind检查程序BUG</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-运行结果如下：-2"><span class="nav-number">9.3.3.</span> <span class="nav-text">3) 运行结果如下：</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-内存泄露"><span class="nav-number">9.4.</span> <span class="nav-text">4.内存泄露</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1）编译程序t4-c"><span class="nav-number">9.4.1.</span> <span class="nav-text">1）编译程序t4.c</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2）使用Valgrind检查程序BUG-3"><span class="nav-number">9.4.2.</span> <span class="nav-text">2）使用Valgrind检查程序BUG</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-运行结果如下：-3"><span class="nav-number">9.4.3.</span> <span class="nav-text">3) 运行结果如下：</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-内存多次释放"><span class="nav-number">9.5.</span> <span class="nav-text">5.内存多次释放</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1）编译程序t5-c"><span class="nav-number">9.5.1.</span> <span class="nav-text">1）编译程序t5.c</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-运行结果如下：-4"><span class="nav-number">9.5.2.</span> <span class="nav-text">3) 运行结果如下：</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-内存动态管理"><span class="nav-number">9.6.</span> <span class="nav-text">6.内存动态管理</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1）编译程序t6-c"><span class="nav-number">9.6.1.</span> <span class="nav-text">1）编译程序t6.c</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2）使用Valgrind检查程序BUG-4"><span class="nav-number">9.6.2.</span> <span class="nav-text">2）使用Valgrind检查程序BUG</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-运行结果如下：-5"><span class="nav-number">9.6.3.</span> <span class="nav-text">3) 运行结果如下：</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#生成可视化的图形"><span class="nav-number">10.</span> <span class="nav-text">生成可视化的图形</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
