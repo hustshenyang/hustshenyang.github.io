@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://www.openduino.com').hostname,
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.6.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="ipv6地址生成方式Link-Local Address的生成方式生成“链路本地地址”，有2种方式  手动配置 自动配置  其中“自动配置”根据算法，又分为  eui64：根据mac地址换算而来 stable_secret：跟随网络环境的变化而变化，处于固定网络环境时其值将固定 random：随机生成  Global Address的生成方式生成“全球单播地址”（或者“唯一本地地址”），有2种方式">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ipv6地址生成方式">
+<meta property="og:url" content="http://www.openduino.com/2018/02/06/ipv6%E5%9C%B0%E5%9D%80%E7%94%9F%E6%88%90/index.html">
+<meta property="og:site_name" content="yshome">
+<meta property="og:description" content="ipv6地址生成方式Link-Local Address的生成方式生成“链路本地地址”，有2种方式  手动配置 自动配置  其中“自动配置”根据算法，又分为  eui64：根据mac地址换算而来 stable_secret：跟随网络环境的变化而变化，处于固定网络环境时其值将固定 random：随机生成  Global Address的生成方式生成“全球单播地址”（或者“唯一本地地址”），有2种方式">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://www.openduino.com/ipv6%E5%9C%B0%E5%9D%80%E7%94%9F%E6%88%90/ra-packet.png">
+<meta property="og:image" content="http://www.openduino.com/ipv6%E5%9C%B0%E5%9D%80%E7%94%9F%E6%88%90/ipv6-addr-flow.png">
+<meta property="og:image" content="http://www.openduino.com/ipv6%E5%9C%B0%E5%9D%80%E7%94%9F%E6%88%90/ra-packet.png">
+<meta property="og:image" content="http://www.openduino.com/ipv6%E5%9C%B0%E5%9D%80%E7%94%9F%E6%88%90/ipv6-addr-flow.png">
+<meta property="article:published_time" content="2018-02-06T14:18:12.000Z">
+<meta property="article:modified_time" content="2020-04-10T14:22:35.483Z">
+<meta property="article:author" content="ysshen">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://www.openduino.com/ipv6%E5%9C%B0%E5%9D%80%E7%94%9F%E6%88%90/ra-packet.png">
+
+<link rel="canonical" href="http://www.openduino.com/2018/02/06/ipv6%E5%9C%B0%E5%9D%80%E7%94%9F%E6%88%90/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>ipv6地址生成方式 | yshome</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">yshome</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://www.openduino.com/2018/02/06/ipv6%E5%9C%B0%E5%9D%80%E7%94%9F%E6%88%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="ysshen">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yshome">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          ipv6地址生成方式
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2018-02-06 22:18:12" itemprop="dateCreated datePublished" datetime="2018-02-06T22:18:12+08:00">2018-02-06</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-04-10 22:22:35" itemprop="dateModified" datetime="2020-04-10T22:22:35+08:00">2020-04-10</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="ipv6地址生成方式"><a href="#ipv6地址生成方式" class="headerlink" title="ipv6地址生成方式"></a>ipv6地址生成方式</h2><h3 id="Link-Local-Address的生成方式"><a href="#Link-Local-Address的生成方式" class="headerlink" title="Link-Local Address的生成方式"></a>Link-Local Address的生成方式</h3><p>生成“链路本地地址”，有2种方式</p>
+<ul>
+<li>手动配置</li>
+<li>自动配置</li>
+</ul>
+<p>其中“自动配置”根据算法，又分为</p>
+<ul>
+<li>eui64：根据mac地址换算而来</li>
+<li>stable_secret：跟随网络环境的变化而变化，处于固定网络环境时其值将固定</li>
+<li>random：随机生成</li>
+</ul>
+<h3 id="Global-Address的生成方式"><a href="#Global-Address的生成方式" class="headerlink" title="Global Address的生成方式"></a>Global Address的生成方式</h3><p>生成“全球单播地址”（或者“唯一本地地址”），有2种方式</p>
+<ul>
+<li>手动配置</li>
+<li>自动配置</li>
+</ul>
+<a id="more"></a>
+
+<p>其中“自动配置”根据获取方式，又分为</p>
+<ul>
+<li>无状态（Stateless）：根据路由通告报文RA（Router Advertisement）包含的prefix前缀信息自动配置IPv6地址，组成方式是Prefix + (EUI64 or 随机)。Stateless也可以称为SLAAC（Stateless address autoconfiguration）</li>
+<li>有状态（Stateful）：通过DHCPv6方式获得IPv6地址</li>
+</ul>
+<p>其中“有状态”又分为2种</p>
+<ul>
+<li>有状态DHCPv6（Stateful DHCPv6）：IPv6地址、其他参数（如DNS）均通过DHCPv6获取</li>
+<li>无状态DHCPv6（Stateless DHCPv6）：IPv6地址依然通过路由通告RA方式生成，其他参数（如DNS）通过DHCPv6获取</li>
+</ul>
+<p>为了避免混淆，在此解释下有状态、无状态到底是什么意思：首先，请明确一点，有状态、无状态仅针对于IPv6地址分配方式，并不包含其他参数</p>
+<ul>
+<li>有状态：可控、可管理。在网络中存在一个IP地址管理者，它能够识别客户端，根据不同的客户端，分配对应的IPv6地址，客户端与服务端之间需要维护IP地址的租期及续约。目前实现这种效果的，就是DHCPv6协议，IP地址管理者就是DHCPv6 Server</li>
+<li>无状态：不可控、难管理。在网络中只有网关，没有IP地址管理者。因此无人去识别客户端，每个客户端根据网关发送的相同的RA报文内容，自行配置IPv6地址</li>
+</ul>
+<h3 id="RA报文中3个关键的Flag"><a href="#RA报文中3个关键的Flag" class="headerlink" title="RA报文中3个关键的Flag"></a>RA报文中3个关键的Flag</h3><p>RA报文中存在3个关键的flag bit：</p>
+<h2 id="ipv6地址生成方式-1"><a href="#ipv6地址生成方式-1" class="headerlink" title="ipv6地址生成方式"></a>ipv6地址生成方式</h2><h3 id="Link-Local-Address的生成方式-1"><a href="#Link-Local-Address的生成方式-1" class="headerlink" title="Link-Local Address的生成方式"></a>Link-Local Address的生成方式</h3><p>生成“链路本地地址”，有2种方式</p>
+<ul>
+<li>手动配置</li>
+<li>自动配置</li>
+</ul>
+<p>其中“自动配置”根据算法，又分为</p>
+<ul>
+<li>eui64：根据mac地址换算而来</li>
+<li>stable_secret：跟随网络环境的变化而变化，处于固定网络环境时其值将固定</li>
+<li>random：随机生成</li>
+</ul>
+<h3 id="Global-Address的生成方式-1"><a href="#Global-Address的生成方式-1" class="headerlink" title="Global Address的生成方式"></a>Global Address的生成方式</h3><p>生成“全球单播地址”（或者“唯一本地地址”），有2种方式</p>
+<ul>
+<li>手动配置</li>
+<li>自动配置</li>
+</ul>
+<!--more-->
+
+<p>其中“自动配置”根据获取方式，又分为</p>
+<ul>
+<li>无状态（Stateless）：根据路由通告报文RA（Router Advertisement）包含的prefix前缀信息自动配置IPv6地址，组成方式是Prefix + (EUI64 or 随机)。Stateless也可以称为SLAAC（Stateless address autoconfiguration）</li>
+<li>有状态（Stateful）：通过DHCPv6方式获得IPv6地址</li>
+</ul>
+<p>其中“有状态”又分为2种</p>
+<ul>
+<li>有状态DHCPv6（Stateful DHCPv6）：IPv6地址、其他参数（如DNS）均通过DHCPv6获取</li>
+<li>无状态DHCPv6（Stateless DHCPv6）：IPv6地址依然通过路由通告RA方式生成，其他参数（如DNS）通过DHCPv6获取</li>
+</ul>
+<p>为了避免混淆，在此解释下有状态、无状态到底是什么意思：首先，请明确一点，有状态、无状态仅针对于IPv6地址分配方式，并不包含其他参数</p>
+<ul>
+<li>有状态：可控、可管理。在网络中存在一个IP地址管理者，它能够识别客户端，根据不同的客户端，分配对应的IPv6地址，客户端与服务端之间需要维护IP地址的租期及续约。目前实现这种效果的，就是DHCPv6协议，IP地址管理者就是DHCPv6 Server</li>
+<li>无状态：不可控、难管理。在网络中只有网关，没有IP地址管理者。因此无人去识别客户端，每个客户端根据网关发送的相同的RA报文内容，自行配置IPv6地址</li>
+</ul>
+<h3 id="RA报文中3个关键的Flag-1"><a href="#RA报文中3个关键的Flag-1" class="headerlink" title="RA报文中3个关键的Flag"></a>RA报文中3个关键的Flag</h3><p>RA报文中存在3个关键的flag bit：<br><img src="/ipv6%E5%9C%B0%E5%9D%80%E7%94%9F%E6%88%90/ra-packet.png" alt="RA报文"></p>
+<ul>
+<li>Autonomous flag（简称A flag）：表示是否配置无状态IP。在一个RA报文中，可存在多个prefix，比如2401::/64、2402::/64、2403::/64，每个prefix都可以独立配置A flag<ul>
+<li>为on时（对应bit位为1）：表示客户端应当在该prefix范围内自动生成IPv6地址（客户端通过DAD自行保证地址可用），并配置子网路由条目、网关</li>
+<li>为off时（对应bit位为0）：表示客户端不应当在该prefix范围内自动生成IPv6地址，但是可以配置子网路由条目、网关</li>
+</ul>
+</li>
+<li>Managed flag（简称M flag）：表示是否配置有状态IP。M flag是RA报文的全局参数，一个RA报文只有一个M flag<ul>
+<li>为on时（对应bit位为1）：表示在stateless流程结束后开始stateful流程，也就是告诉客户端可以通过DHCPv6来获得IPv6地址和其他参数（如DNS列表）</li>
+<li>为off时（对应bit位为0）：表示不通过DHCPv6来获得IPv6地址。</li>
+</ul>
+</li>
+<li>Other flag（简称O flag）：表示是否通过DHCPv6获得除IP以外的其他参数（如DNS列表）。O flag也是RA报文中的全局参数，一个RA报文只有一个O flag。注意：仅当M flag为off时，该参数才会被读取。<ul>
+<li>为on时（对应bit位为1）：当M flag为on，或者M flag为off且至少有一个A flag为on时，将通过DHCPv6获得其他参数</li>
+<li>为off时（对应bit位为0）：当M flag为on时，依然将通过DHCPv6获得其他参数；当M flag也为off时，将不通过DHCPv6获得其他参数</li>
+</ul>
+</li>
+</ul>
+<h3 id="流程示意图"><a href="#流程示意图" class="headerlink" title="流程示意图"></a>流程示意图</h3><p>无状态和有状态并不是相互对立的，他们可以同时存在，也就是一张网卡上可以同时出现通过RA生成的IP以及通过DHCPv6获得的IP。通过下面这张笔者绘制的流程图可知晓其中奥秘。<br><img src="/ipv6%E5%9C%B0%E5%9D%80%E7%94%9F%E6%88%90/ipv6-addr-flow.png" alt="ipv6地址流程图"></p>
+<p>从图中可以看到，顺序为：</p>
+<ol>
+<li>Stateless自动配置“链路本地地址”</li>
+<li>Stateless自动配置“全球地址”（或“唯一本地地址”）</li>
+<li>Stateful自动配置“全球地址”（或“唯一本地地址”）和其他参数，其中Stateful阶段中存在Stateful DHCPv6或Stateless DHCPv6</li>
+</ol>
+<p>注意：部分客户端操作系统或网络管理器当Stateless阶段没有收到RA报文后，就到此结束，不会走Stateful阶段，比如CentOS 7、Ubuntu 17的默认逻辑都是这样，而windows server 2012就会继续走Stateful阶段。</p>
+<h3 id="应用场景（选择无状态还是有状态）"><a href="#应用场景（选择无状态还是有状态）" class="headerlink" title="应用场景（选择无状态还是有状态）"></a>应用场景（选择无状态还是有状态）</h3><p>何时采用无状态、何时采用有状态，关键看应用场景。核心在于是否需要控制IP地址，比如保持IP不变，如果需要控制，就采用有状态；如果无需控制，就采用无状态。</p>
+<ul>
+<li>服务端领域：如对外提供服务，通常需要采用有状态IP。因为业务IP的突然变化容易导致业务中断（除非做好服务发现）</li>
+<li>客户端领域：如移动设备、办公室内PC机，只需要上IPv6互联网，并不需要对外提供服务，可以采用无状态IP</li>
+</ul>
+<h3 id="openwrt测试效果"><a href="#openwrt测试效果" class="headerlink" title="openwrt测试效果"></a>openwrt测试效果</h3><ul>
+<li>Autonomous flag（简称A flag）：表示是否配置无状态IP。在一个RA报文中，可存在多个prefix，比如2401::/64、2402::/64、2403::/64，每个prefix都可以独立配置A flag<ul>
+<li>为on时（对应bit位为1）：表示客户端应当在该prefix范围内自动生成IPv6地址（客户端通过DAD自行保证地址可用），并配置子网路由条目、网关</li>
+<li>为off时（对应bit位为0）：表示客户端不应当在该prefix范围内自动生成IPv6地址，但是可以配置子网路由条目、网关</li>
+</ul>
+</li>
+<li>Managed flag（简称M flag）：表示是否配置有状态IP。M flag是RA报文的全局参数，一个RA报文只有一个M flag<ul>
+<li>为on时（对应bit位为1）：表示在stateless流程结束后开始stateful流程，也就是告诉客户端可以通过DHCPv6来获得IPv6地址和其他参数（如DNS列表）</li>
+<li>为off时（对应bit位为0）：表示不通过DHCPv6来获得IPv6地址。</li>
+</ul>
+</li>
+<li>Other flag（简称O flag）：表示是否通过DHCPv6获得除IP以外的其他参数（如DNS列表）。O flag也是RA报文中的全局参数，一个RA报文只有一个O flag。注意：仅当M flag为off时，该参数才会被读取。<ul>
+<li>为on时（对应bit位为1）：当M flag为on，或者M flag为off且至少有一个A flag为on时，将通过DHCPv6获得其他参数</li>
+<li>为off时（对应bit位为0）：当M flag为on时，依然将通过DHCPv6获得其他参数；当M flag也为off时，将不通过DHCPv6获得其他参数</li>
+</ul>
+</li>
+</ul>
+<h3 id="流程示意图-1"><a href="#流程示意图-1" class="headerlink" title="流程示意图"></a>流程示意图</h3><p>无状态和有状态并不是相互对立的，他们可以同时存在，也就是一张网卡上可以同时出现通过RA生成的IP以及通过DHCPv6获得的IP。通过下面这张笔者绘制的流程图可知晓其中奥秘。</p>
+<h2 id="ipv6地址生成方式-2"><a href="#ipv6地址生成方式-2" class="headerlink" title="ipv6地址生成方式"></a>ipv6地址生成方式</h2><h3 id="Link-Local-Address的生成方式-2"><a href="#Link-Local-Address的生成方式-2" class="headerlink" title="Link-Local Address的生成方式"></a>Link-Local Address的生成方式</h3><p>生成“链路本地地址”，有2种方式</p>
+<ul>
+<li>手动配置</li>
+<li>自动配置</li>
+</ul>
+<p>其中“自动配置”根据算法，又分为</p>
+<ul>
+<li>eui64：根据mac地址换算而来</li>
+<li>stable_secret：跟随网络环境的变化而变化，处于固定网络环境时其值将固定</li>
+<li>random：随机生成</li>
+</ul>
+<h3 id="Global-Address的生成方式-2"><a href="#Global-Address的生成方式-2" class="headerlink" title="Global Address的生成方式"></a>Global Address的生成方式</h3><p>生成“全球单播地址”（或者“唯一本地地址”），有2种方式</p>
+<ul>
+<li>手动配置</li>
+<li>自动配置</li>
+</ul>
+<!--more-->
+
+<p>其中“自动配置”根据获取方式，又分为</p>
+<ul>
+<li>无状态（Stateless）：根据路由通告报文RA（Router Advertisement）包含的prefix前缀信息自动配置IPv6地址，组成方式是Prefix + (EUI64 or 随机)。Stateless也可以称为SLAAC（Stateless address autoconfiguration）</li>
+<li>有状态（Stateful）：通过DHCPv6方式获得IPv6地址</li>
+</ul>
+<p>其中“有状态”又分为2种</p>
+<ul>
+<li>有状态DHCPv6（Stateful DHCPv6）：IPv6地址、其他参数（如DNS）均通过DHCPv6获取</li>
+<li>无状态DHCPv6（Stateless DHCPv6）：IPv6地址依然通过路由通告RA方式生成，其他参数（如DNS）通过DHCPv6获取</li>
+</ul>
+<p>为了避免混淆，在此解释下有状态、无状态到底是什么意思：首先，请明确一点，有状态、无状态仅针对于IPv6地址分配方式，并不包含其他参数</p>
+<ul>
+<li>有状态：可控、可管理。在网络中存在一个IP地址管理者，它能够识别客户端，根据不同的客户端，分配对应的IPv6地址，客户端与服务端之间需要维护IP地址的租期及续约。目前实现这种效果的，就是DHCPv6协议，IP地址管理者就是DHCPv6 Server</li>
+<li>无状态：不可控、难管理。在网络中只有网关，没有IP地址管理者。因此无人去识别客户端，每个客户端根据网关发送的相同的RA报文内容，自行配置IPv6地址</li>
+</ul>
+<h3 id="RA报文中3个关键的Flag-2"><a href="#RA报文中3个关键的Flag-2" class="headerlink" title="RA报文中3个关键的Flag"></a>RA报文中3个关键的Flag</h3><p>RA报文中存在3个关键的flag bit：<br><img src="/ipv6%E5%9C%B0%E5%9D%80%E7%94%9F%E6%88%90/ra-packet.png" alt="RA报文"></p>
+<ul>
+<li>Autonomous flag（简称A flag）：表示是否配置无状态IP。在一个RA报文中，可存在多个prefix，比如2401::/64、2402::/64、2403::/64，每个prefix都可以独立配置A flag<ul>
+<li>为on时（对应bit位为1）：表示客户端应当在该prefix范围内自动生成IPv6地址（客户端通过DAD自行保证地址可用），并配置子网路由条目、网关</li>
+<li>为off时（对应bit位为0）：表示客户端不应当在该prefix范围内自动生成IPv6地址，但是可以配置子网路由条目、网关</li>
+</ul>
+</li>
+<li>Managed flag（简称M flag）：表示是否配置有状态IP。M flag是RA报文的全局参数，一个RA报文只有一个M flag<ul>
+<li>为on时（对应bit位为1）：表示在stateless流程结束后开始stateful流程，也就是告诉客户端可以通过DHCPv6来获得IPv6地址和其他参数（如DNS列表）</li>
+<li>为off时（对应bit位为0）：表示不通过DHCPv6来获得IPv6地址。</li>
+</ul>
+</li>
+<li>Other flag（简称O flag）：表示是否通过DHCPv6获得除IP以外的其他参数（如DNS列表）。O flag也是RA报文中的全局参数，一个RA报文只有一个O flag。注意：仅当M flag为off时，该参数才会被读取。<ul>
+<li>为on时（对应bit位为1）：当M flag为on，或者M flag为off且至少有一个A flag为on时，将通过DHCPv6获得其他参数</li>
+<li>为off时（对应bit位为0）：当M flag为on时，依然将通过DHCPv6获得其他参数；当M flag也为off时，将不通过DHCPv6获得其他参数</li>
+</ul>
+</li>
+</ul>
+<h3 id="流程示意图-2"><a href="#流程示意图-2" class="headerlink" title="流程示意图"></a>流程示意图</h3><p>无状态和有状态并不是相互对立的，他们可以同时存在，也就是一张网卡上可以同时出现通过RA生成的IP以及通过DHCPv6获得的IP。通过下面这张笔者绘制的流程图可知晓其中奥秘。<br><img src="/ipv6%E5%9C%B0%E5%9D%80%E7%94%9F%E6%88%90/ipv6-addr-flow.png" alt="ipv6地址流程图"></p>
+<p>从图中可以看到，顺序为：</p>
+<ol>
+<li>Stateless自动配置“链路本地地址”</li>
+<li>Stateless自动配置“全球地址”（或“唯一本地地址”）</li>
+<li>Stateful自动配置“全球地址”（或“唯一本地地址”）和其他参数，其中Stateful阶段中存在Stateful DHCPv6或Stateless DHCPv6</li>
+</ol>
+<p>注意：部分客户端操作系统或网络管理器当Stateless阶段没有收到RA报文后，就到此结束，不会走Stateful阶段，比如CentOS 7、Ubuntu 17的默认逻辑都是这样，而windows server 2012就会继续走Stateful阶段。</p>
+<h3 id="应用场景（选择无状态还是有状态）-1"><a href="#应用场景（选择无状态还是有状态）-1" class="headerlink" title="应用场景（选择无状态还是有状态）"></a>应用场景（选择无状态还是有状态）</h3><p>何时采用无状态、何时采用有状态，关键看应用场景。核心在于是否需要控制IP地址，比如保持IP不变，如果需要控制，就采用有状态；如果无需控制，就采用无状态。</p>
+<ul>
+<li>服务端领域：如对外提供服务，通常需要采用有状态IP。因为业务IP的突然变化容易导致业务中断（除非做好服务发现）</li>
+<li>客户端领域：如移动设备、办公室内PC机，只需要上IPv6互联网，并不需要对外提供服务，可以采用无状态IP</li>
+</ul>
+<h3 id="openwrt测试效果-1"><a href="#openwrt测试效果-1" class="headerlink" title="openwrt测试效果"></a>openwrt测试效果</h3><p>从图中可以看到，顺序为：</p>
+<ol>
+<li>Stateless自动配置“链路本地地址”</li>
+<li>Stateless自动配置“全球地址”（或“唯一本地地址”）</li>
+<li>Stateful自动配置“全球地址”（或“唯一本地地址”）和其他参数，其中Stateful阶段中存在Stateful DHCPv6或Stateless DHCPv6</li>
+</ol>
+<p>注意：部分客户端操作系统或网络管理器当Stateless阶段没有收到RA报文后，就到此结束，不会走Stateful阶段，比如CentOS 7、Ubuntu 17的默认逻辑都是这样，而windows server 2012就会继续走Stateful阶段。</p>
+<h3 id="应用场景（选择无状态还是有状态）-2"><a href="#应用场景（选择无状态还是有状态）-2" class="headerlink" title="应用场景（选择无状态还是有状态）"></a>应用场景（选择无状态还是有状态）</h3><p>何时采用无状态、何时采用有状态，关键看应用场景。核心在于是否需要控制IP地址，比如保持IP不变，如果需要控制，就采用有状态；如果无需控制，就采用无状态。</p>
+<ul>
+<li>服务端领域：如对外提供服务，通常需要采用有状态IP。因为业务IP的突然变化容易导致业务中断（除非做好服务发现）</li>
+<li>客户端领域：如移动设备、办公室内PC机，只需要上IPv6互联网，并不需要对外提供服务，可以采用无状态IP</li>
+</ul>
+<h3 id="openwrt测试效果-2"><a href="#openwrt测试效果-2" class="headerlink" title="openwrt测试效果"></a>openwrt测试效果</h3>
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2018/02/06/valgrind%E4%BD%BF%E7%94%A8%E4%BB%8B%E7%BB%8D/" rel="prev" title="valgrind使用介绍">
+      <i class="fa fa-chevron-left"></i> valgrind使用介绍
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/04/08/openwrt%E5%BC%80%E5%90%AFusb%E8%87%AA%E5%8A%A8%E6%8C%82%E8%BD%BD/" rel="next" title="openwrt开启usb自动挂载">
+      openwrt开启usb自动挂载 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#ipv6地址生成方式"><span class="nav-number">1.</span> <span class="nav-text">ipv6地址生成方式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Link-Local-Address的生成方式"><span class="nav-number">1.1.</span> <span class="nav-text">Link-Local Address的生成方式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Global-Address的生成方式"><span class="nav-number">1.2.</span> <span class="nav-text">Global Address的生成方式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RA报文中3个关键的Flag"><span class="nav-number">1.3.</span> <span class="nav-text">RA报文中3个关键的Flag</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ipv6地址生成方式-1"><span class="nav-number">2.</span> <span class="nav-text">ipv6地址生成方式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Link-Local-Address的生成方式-1"><span class="nav-number">2.1.</span> <span class="nav-text">Link-Local Address的生成方式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Global-Address的生成方式-1"><span class="nav-number">2.2.</span> <span class="nav-text">Global Address的生成方式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RA报文中3个关键的Flag-1"><span class="nav-number">2.3.</span> <span class="nav-text">RA报文中3个关键的Flag</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#流程示意图"><span class="nav-number">2.4.</span> <span class="nav-text">流程示意图</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#应用场景（选择无状态还是有状态）"><span class="nav-number">2.5.</span> <span class="nav-text">应用场景（选择无状态还是有状态）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#openwrt测试效果"><span class="nav-number">2.6.</span> <span class="nav-text">openwrt测试效果</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#流程示意图-1"><span class="nav-number">2.7.</span> <span class="nav-text">流程示意图</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ipv6地址生成方式-2"><span class="nav-number">3.</span> <span class="nav-text">ipv6地址生成方式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Link-Local-Address的生成方式-2"><span class="nav-number">3.1.</span> <span class="nav-text">Link-Local Address的生成方式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Global-Address的生成方式-2"><span class="nav-number">3.2.</span> <span class="nav-text">Global Address的生成方式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RA报文中3个关键的Flag-2"><span class="nav-number">3.3.</span> <span class="nav-text">RA报文中3个关键的Flag</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#流程示意图-2"><span class="nav-number">3.4.</span> <span class="nav-text">流程示意图</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#应用场景（选择无状态还是有状态）-1"><span class="nav-number">3.5.</span> <span class="nav-text">应用场景（选择无状态还是有状态）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#openwrt测试效果-1"><span class="nav-number">3.6.</span> <span class="nav-text">openwrt测试效果</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#应用场景（选择无状态还是有状态）-2"><span class="nav-number">3.7.</span> <span class="nav-text">应用场景（选择无状态还是有状态）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#openwrt测试效果-2"><span class="nav-number">3.8.</span> <span class="nav-text">openwrt测试效果</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">ysshen</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">3</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ysshen</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.6.0
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
